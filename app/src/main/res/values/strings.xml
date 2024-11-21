@@ -1,0 +1,28 @@
+<resources>
+  <string name="app_name">MBooking</string>
+  <string name="greeting">Hi, %s!</string>
+  <string name="welcome_back">Welcome back!</string>
+  <string name="notifications">Notifications</string>
+  <string name="search">Search</string>
+  <string name="now_playing">Now playing</string>
+  <string name="see_all">See all</string>
+  <string name="coming_soon">Coming soon</string>
+  <string name="popular">Popular</string>
+  <string name="top_rated">Top rated</string>
+  <string name="no_genres_found">No genres found</string>
+  <string name="genres">Genres</string>
+  <string name="original_language">Original language</string>
+  <string name="revenue">Revenue</string>
+  <string name="overview">Overview</string>
+  <string name="see_more">See more</string>
+  <string name="reviews">Reviews</string>
+  <string name="something_went_wrong">Oops! Something went wrong</string>
+  <string name="no_connection">It seems like you are not connected to the internet</string>
+  <string name="cast">Cast</string>
+  <string name="crew">Crew</string>
+  <string name="go_back">Go back</string>
+  <string name="movies_not_found">No movies found</string>
+  <string name="movies_search">Search for your favorites movies, to watch them anytime, anywhere</string>
+  <string name="movie_poster">Movie poster</string>
+  <string name="movie_poster_not_found">Movie poster not found</string>
+</resources>
