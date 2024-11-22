@@ -1,0 +1,90 @@
+# This file was generated using Kotlin DSL (.github/workflows/release.main.kts).
+# If you want to modify the workflow, please change the Kotlin file and regenerate this YAML file.
+# Generated with https://github.com/typesafegithub/github-workflows-kt
+
+name: 'release'
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Release-Builds'
+        type: 'string'
+        required: true
+        default: 'Generate Release Builds'
+  push:
+    branches:
+    - 'main'
+    tags:
+    - 'v*'
+jobs:
+  check_yaml_consistency:
+    name: 'Check YAML consistency'
+    runs-on: 'ubuntu-latest'
+    steps:
+    - id: 'step-0'
+      name: 'Check out'
+      uses: 'actions/checkout@v4'
+    - id: 'step-1'
+      name: 'Execute script'
+      run: 'rm ''.github/workflows/release.yaml'' && ''.github/workflows/release.main.kts'''
+    - id: 'step-2'
+      name: 'Consistency check'
+      run: 'git diff --exit-code ''.github/workflows/release.yaml'''
+  apk:
+    name: 'Generate Release Builds'
+    runs-on: 'ubuntu-latest'
+    needs:
+    - 'check_yaml_consistency'
+    outputs:
+      apk: '${{ steps.step-6.outputs.apk }}'
+    steps:
+    - id: 'step-0'
+      name: 'Checking out branch'
+      uses: 'actions/checkout@v4'
+    - id: 'step-1'
+      name: 'Setup Java'
+      uses: 'actions/setup-java@v4'
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    - id: 'step-2'
+      name: 'Decode Keystore'
+      run: 'echo secrets.KEYSTORE_ENCODED | base64 -d > keystore.jks'
+    - id: 'step-3'
+      name: 'Decode Keystore Properties'
+      run: 'echo secrets.KEYSTORE_PROPERTIES | base64 -d > keystore.properties'
+    - id: 'step-4'
+      name: 'Decode Secret Properties'
+      run: 'echo secrets.SECRET_PROPERTIES | base64 -d > secret.properties'
+    - id: 'step-5'
+      name: 'Build APK'
+      run: './gradlew assembleRelease --stacktrace'
+    - id: 'step-6'
+      name: 'Output APK'
+      run: 'echo ''apk=$(find app/build/outputs/apk/release -name *.apk)'' >> $GITHUB_OUTPUT'
+  upload-artifact:
+    name: 'Upload APK'
+    runs-on: 'ubuntu-latest'
+    needs:
+    - 'apk'
+    - 'check_yaml_consistency'
+    steps:
+    - id: 'step-0'
+      name: 'Upload APK'
+      uses: 'actions/upload-artifact@v4'
+      with:
+        name: 'release-apk'
+        path: 'needs.apk.outputs.apk'
+  github-release:
+    name: 'Create GitHub Release'
+    runs-on: 'ubuntu-latest'
+    needs:
+    - 'apk'
+    - 'check_yaml_consistency'
+    if: 'startsWith(github.ref, ''refs/tags/v'')'
+    steps:
+    - id: 'step-0'
+      name: 'Release'
+      uses: 'softprops/action-gh-release@v2'
+      with:
+        files: 'needs.apk.outputs.apk'

@@ -12,9 +12,23 @@ val secretProperties = Properties().apply {
   secretFile.inputStream().use { input -> load(input) }
 }
 
+val keystoreProperties = Properties().apply {
+  val keystoreFile = rootProject.file("keystore.properties")
+  keystoreFile.inputStream().use { input -> load(input) }
+}
+
 android {
   namespace = "com.skylissh.mbooking"
   compileSdk = 34
+
+  signingConfigs {
+    create("release") {
+      storeFile = file(keystoreProperties["storeFile"] as String)
+      storePassword = keystoreProperties["storePassword"] as String
+      keyAlias = keystoreProperties["keyAlias"] as String
+      keyPassword = keystoreProperties["keyPassword"] as String
+    }
+  }
 
   defaultConfig {
     applicationId = "com.skylissh.mbooking"
@@ -39,11 +53,13 @@ android {
 
   buildTypes {
     release {
-      isMinifyEnabled = false
+      isMinifyEnabled = true
+      isShrinkResources = true
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"),
         "proguard-rules.pro"
       )
+      signingConfig = signingConfigs.getByName("release")
     }
   }
   compileOptions {

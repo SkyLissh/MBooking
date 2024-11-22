@@ -124,7 +124,7 @@ fun SearchScreen(
           .padding(dimensionResource(R.dimen.padding_medium))
           .fillMaxSize()
       ) {
-        CircularProgressIndicator(modifier = Modifier.size(84.dp))
+        CircularProgressIndicator(modifier = Modifier.size(64.dp))
       }
 
       else -> Column(

@@ -45,6 +45,7 @@ class SearchViewModel(
 
   fun loadNextPage(query: String) = viewModelScope.launch {
     val (currentState, hasNextPage) = searchState.value
+
     if (currentState is AsyncState.Loading) return@launch
     if (currentState is AsyncState.Success && !hasNextPage) return@launch
 
@@ -58,14 +59,14 @@ class SearchViewModel(
       val movies = repository.searchMovies(query, page = _page.value)
 
       if (movies.results.isEmpty()) {
-       return SearchState(state = AsyncState.Error("No movies found"))
+        _searchState.value.copy(state = AsyncState.Error("No movies found"))
+      } else {
+        _searchState.value.copy(
+          state = AsyncState.Success(movies),
+          hasNextPage = movies.totalPages > _page.value,
+          results = _searchState.value.results + movies.results
+        )
       }
-
-      _searchState.value.copy(
-        state = AsyncState.Success(movies),
-        hasNextPage = movies.totalPages > _page.value,
-        results = _searchState.value.results + movies.results
-      )
     } catch (e: IOException) {
       _searchState.value.copy(
         state = AsyncState.Error(e.message ?: "No internet connection")
