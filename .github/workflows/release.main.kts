@@ -7,6 +7,7 @@
 @file:DependsOn("actions:setup-java:v4")
 @file:DependsOn("actions:upload-artifact:v4")
 @file:DependsOn("softprops:action-gh-release:v2")
+@file:DependsOn("actions:download-artifact:v4")
 
 import io.github.typesafegithub.workflows.actions.actions.Checkout
 import io.github.typesafegithub.workflows.actions.actions.SetupJava
@@ -51,10 +52,7 @@ workflow(
       "KEYSTORE_ENCODED_ENV" to expr { KEYSTORE_ENCODED },
       "KEYSTORE_PROPERTIES_ENV" to expr { KEYSTORE_PROPERTIES },
       "SECRET_PROPERTIES_ENV" to expr { SECRET_PROPERTIES }
-    ),
-    outputs = object : JobOutputs() {
-      var apk by output()
-    }) {
+    )) {
     val KEYSTORE_ENCODED_ENV by Contexts.env
     val KEYSTORE_PROPERTIES_ENV by Contexts.env
     val SECRET_PROPERTIES_ENV by Contexts.env
@@ -80,34 +78,12 @@ workflow(
       name = "Build APK",
       command = "./gradlew assembleRelease --stacktrace"
     )
-    run(
-      name = "Output APK",
-      command = "echo 'apk=app/build/outputs/apk/release/app-release.apk' >> $GITHUB_OUTPUT"
-    ).let { jobOutputs.apk = it.outputs["apk"] }
-  }
-
-  job(
-    id = "upload-artifact",
-    name = "Upload APK",
-    runsOn = UbuntuLatest,
-    needs = listOf(apkJob)
-  ) {
     uses(
       name = "Upload APK",
-      action = UploadArtifact(name = "release-apk", path = listOf(expr { apkJob.outputs.apk }))
-    )
-  }
-
-  job(
-    id = "github-release",
-    name = "Create GitHub Release",
-    runsOn = UbuntuLatest,
-    needs = listOf(apkJob),
-    `if` = "startsWith(github.ref, 'refs/tags/v')"
-  ) {
-    uses(
-      name = "Release",
-      action = ActionGhRelease(files = listOf(expr { apkJob.outputs.apk }))
+      action = UploadArtifact(
+        name = "release-apk",
+        path = listOf("app/build/outputs/apk/release/app-release.apk")
+      )
     )
   }
 }
