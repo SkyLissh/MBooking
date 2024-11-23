@@ -65,7 +65,7 @@ jobs:
       run: './gradlew assembleRelease --stacktrace'
     - id: 'step-6'
       name: 'Output APK'
-      run: 'echo ''apk=$(find app/build/outputs/apk/release -name *.apk)'' >> $GITHUB_OUTPUT'
+      run: 'echo ''apk=app/build/outputs/apk/release/app-release.apk'' >> $GITHUB_OUTPUT'
   upload-artifact:
     name: 'Upload APK'
     runs-on: 'ubuntu-latest'
