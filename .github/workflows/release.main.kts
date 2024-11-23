@@ -37,19 +37,28 @@ workflow(
     Push(branches = listOf("main"), tags = listOf("v*"))
   )
 ) {
+
   val KEYSTORE_ENCODED by Contexts.secrets
   val KEYSTORE_PROPERTIES by Contexts.secrets
   val SECRET_PROPERTIES by Contexts.secrets
-
   val GITHUB_OUTPUT by Contexts.env
 
   val apkJob = job(
     id = "apk",
     name = "Generate Release Builds",
     runsOn = UbuntuLatest,
+    env = mapOf(
+      "KEYSTORE_ENCODED_ENV" to expr { KEYSTORE_ENCODED },
+      "KEYSTORE_PROPERTIES_ENV" to expr { KEYSTORE_PROPERTIES },
+      "SECRET_PROPERTIES_ENV" to expr { SECRET_PROPERTIES }
+    ),
     outputs = object : JobOutputs() {
       var apk by output()
     }) {
+    val KEYSTORE_ENCODED_ENV by Contexts.env
+    val KEYSTORE_PROPERTIES_ENV by Contexts.env
+    val SECRET_PROPERTIES_ENV by Contexts.env
+
     uses(name = "Checking out branch", action = Checkout())
     uses(
       name = "Setup Java",
@@ -57,15 +66,15 @@ workflow(
     )
     run(
       name = "Decode Keystore",
-      command = "echo ${expr { KEYSTORE_ENCODED }} | base64 -d > keystore.jks"
+      command = "echo $KEYSTORE_ENCODED_ENV | base64 -d > keystore.jks"
     )
     run(
       name = "Decode Keystore Properties",
-      command = "echo ${expr { KEYSTORE_PROPERTIES }} | base64 -d > keystore.properties"
+      command = "echo $KEYSTORE_PROPERTIES_ENV | base64 -d > keystore.properties"
     )
     run(
       name = "Decode Secret Properties",
-      command = "echo ${expr { SECRET_PROPERTIES }} | base64 -d > secret.properties"
+      command = "echo $SECRET_PROPERTIES_ENV | base64 -d > secret.properties"
     )
     run(
       name = "Build APK",
