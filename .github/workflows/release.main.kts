@@ -17,6 +17,7 @@ import io.github.typesafegithub.workflows.domain.RunnerType.UbuntuLatest
 import io.github.typesafegithub.workflows.domain.triggers.Push
 import io.github.typesafegithub.workflows.domain.triggers.WorkflowDispatch
 import io.github.typesafegithub.workflows.dsl.expressions.Contexts
+import io.github.typesafegithub.workflows.dsl.expressions.expr
 import io.github.typesafegithub.workflows.dsl.workflow
 
 workflow(
@@ -56,15 +57,15 @@ workflow(
     )
     run(
       name = "Decode Keystore",
-      command = "echo $KEYSTORE_ENCODED | base64 -d > keystore.jks"
+      command = "echo ${expr { KEYSTORE_ENCODED }} | base64 -d > keystore.jks"
     )
     run(
       name = "Decode Keystore Properties",
-      command = "echo $KEYSTORE_PROPERTIES | base64 -d > keystore.properties"
+      command = "echo ${expr { KEYSTORE_PROPERTIES }} | base64 -d > keystore.properties"
     )
     run(
       name = "Decode Secret Properties",
-      command = "echo $SECRET_PROPERTIES | base64 -d > secret.properties"
+      command = "echo ${expr { SECRET_PROPERTIES }} | base64 -d > secret.properties"
     )
     run(
       name = "Build APK",
@@ -84,7 +85,7 @@ workflow(
   ) {
     uses(
       name = "Upload APK",
-      action = UploadArtifact(name = "release-apk", path = listOf(apkJob.outputs.apk))
+      action = UploadArtifact(name = "release-apk", path = listOf(expr { apkJob.outputs.apk }))
     )
   }
 
@@ -95,7 +96,10 @@ workflow(
     needs = listOf(apkJob),
     `if` = "startsWith(github.ref, 'refs/tags/v')"
   ) {
-    uses(name = "Release", action = ActionGhRelease(files = listOf(apkJob.outputs.apk)))
+    uses(
+      name = "Release",
+      action = ActionGhRelease(files = listOf(expr { apkJob.outputs.apk }))
+    )
   }
 }
 

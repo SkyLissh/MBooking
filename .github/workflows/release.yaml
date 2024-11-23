@@ -49,13 +49,13 @@ jobs:
         distribution: 'temurin'
     - id: 'step-2'
       name: 'Decode Keystore'
-      run: 'echo secrets.KEYSTORE_ENCODED | base64 -d > keystore.jks'
+      run: 'echo ${{ secrets.KEYSTORE_ENCODED }} | base64 -d > keystore.jks'
     - id: 'step-3'
       name: 'Decode Keystore Properties'
-      run: 'echo secrets.KEYSTORE_PROPERTIES | base64 -d > keystore.properties'
+      run: 'echo ${{ secrets.KEYSTORE_PROPERTIES }} | base64 -d > keystore.properties'
     - id: 'step-4'
       name: 'Decode Secret Properties'
-      run: 'echo secrets.SECRET_PROPERTIES | base64 -d > secret.properties'
+      run: 'echo ${{ secrets.SECRET_PROPERTIES }} | base64 -d > secret.properties'
     - id: 'step-5'
       name: 'Build APK'
       run: './gradlew assembleRelease --stacktrace'
@@ -74,7 +74,7 @@ jobs:
       uses: 'actions/upload-artifact@v4'
       with:
         name: 'release-apk'
-        path: 'needs.apk.outputs.apk'
+        path: '${{ needs.apk.outputs.apk }}'
   github-release:
     name: 'Create GitHub Release'
     runs-on: 'ubuntu-latest'
@@ -87,4 +87,4 @@ jobs:
       name: 'Release'
       uses: 'softprops/action-gh-release@v2'
       with:
-        files: 'needs.apk.outputs.apk'
+        files: '${{ needs.apk.outputs.apk }}'
