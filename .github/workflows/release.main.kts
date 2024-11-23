@@ -82,7 +82,7 @@ workflow(
     )
     run(
       name = "Output APK",
-      command = "echo 'apk=$(find app/build/outputs/apk/release -name *.apk)' >> $GITHUB_OUTPUT"
+      command = "echo 'apk=app/build/outputs/apk/release/app-release.apk' >> $GITHUB_OUTPUT"
     ).let { jobOutputs.apk = it.outputs["apk"] }
   }
 
