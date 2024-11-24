@@ -7,13 +7,11 @@
 @file:DependsOn("actions:setup-java:v4")
 @file:DependsOn("actions:upload-artifact:v4")
 @file:DependsOn("softprops:action-gh-release:v2")
-@file:DependsOn("actions:download-artifact:v4")
 
 import io.github.typesafegithub.workflows.actions.actions.Checkout
 import io.github.typesafegithub.workflows.actions.actions.SetupJava
 import io.github.typesafegithub.workflows.actions.actions.UploadArtifact
 import io.github.typesafegithub.workflows.actions.softprops.ActionGhRelease
-import io.github.typesafegithub.workflows.domain.JobOutputs
 import io.github.typesafegithub.workflows.domain.RunnerType.UbuntuLatest
 import io.github.typesafegithub.workflows.domain.triggers.Push
 import io.github.typesafegithub.workflows.domain.triggers.WorkflowDispatch
@@ -35,7 +33,7 @@ workflow(
         )
       )
     ),
-    Push(branches = listOf("main"), tags = listOf("v*"))
+    Push(branches = listOf("main"), tags = listOf("v*.*.*"))
   )
 ) {
 
@@ -84,6 +82,11 @@ workflow(
         name = "release-apk",
         path = listOf("app/build/outputs/apk/release/app-release.apk")
       )
+    )
+    uses(
+      name = "Create GitHub Release",
+      `if` = "startsWith(github.ref, 'refs/tags/v')",
+      action = ActionGhRelease(files = listOf("app/build/outputs/apk/release/app-release.apk"))
     )
   }
 }

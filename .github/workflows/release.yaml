@@ -15,7 +15,7 @@ on:
     branches:
     - 'main'
     tags:
-    - 'v*'
+    - 'v*.*.*'
 jobs:
   check_yaml_consistency:
     name: 'Check YAML consistency'
@@ -67,3 +67,9 @@ jobs:
       with:
         name: 'release-apk'
         path: 'app/build/outputs/apk/release/app-release.apk'
+    - id: 'step-7'
+      name: 'Create GitHub Release'
+      uses: 'softprops/action-gh-release@v2'
+      with:
+        files: 'app/build/outputs/apk/release/app-release.apk'
+      if: 'startsWith(github.ref, ''refs/tags/v'')'
