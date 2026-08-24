@@ -52,7 +52,3 @@ Requires Android Studio with JDK 17+ and the Android SDK.
 - Modern native Android (Compose-first, Kotlin 2.0)
 - Typed networking, DI, and image loading done right
 - Polish: skeletons, debounce, error screens, release hardening
-
----
-
-*Built by [Alisson "SkyLissh" Hernandez] — Android, Kotlin, and Jetpack Compose. This is a personal portfolio project.*
